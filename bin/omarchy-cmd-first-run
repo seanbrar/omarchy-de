@@ -3,14 +3,20 @@
 set -e
 
 FIRST_RUN_MODE=~/.local/state/omarchy/first-run.mode
+LAYERED_MARKER=~/.config/omarchy/.layered
 
 if [[ -f "$FIRST_RUN_MODE" ]]; then
   rm -f "$FIRST_RUN_MODE"
 
   bash "$OMARCHY_PATH/install/first-run/battery-monitor.sh"
   bash "$OMARCHY_PATH/install/first-run/cleanup-reboot-sudoers.sh"
-  bash "$OMARCHY_PATH/install/first-run/firewall.sh"
-  bash "$OMARCHY_PATH/install/first-run/dns-resolver.sh"
+
+  # Skip firewall and DNS changes in layered mode (assumes Docker and clean DNS)
+  if [[ ! -f "$LAYERED_MARKER" ]]; then
+    bash "$OMARCHY_PATH/install/first-run/firewall.sh"
+    bash "$OMARCHY_PATH/install/first-run/dns-resolver.sh"
+  fi
+
   bash "$OMARCHY_PATH/install/first-run/gnome-theme.sh"
   bash "$OMARCHY_PATH/install/first-run/elephant.sh"
   sudo rm -f /etc/sudoers.d/first-run

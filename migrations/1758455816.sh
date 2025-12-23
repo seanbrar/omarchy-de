@@ -8,4 +8,6 @@ MODULES+=(thunderbolt)
 EOF
 fi
 
-sudo limine-update
+if command -v limine &>/dev/null; then
+  sudo limine-update
+fi

@@ -4,9 +4,11 @@
 set -eEo pipefail
 
 # Define Omarchy locations
-export OMARCHY_PATH="$HOME/.local/share/omarchy"
+if [[ -z "${OMARCHY_PATH:-}" ]]; then
+  export OMARCHY_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
 export OMARCHY_INSTALL="$OMARCHY_PATH/install"
-export OMARCHY_INSTALL_LOG_FILE="/var/log/omarchy-install.log"
+export OMARCHY_INSTALL_LOG_FILE="${OMARCHY_INSTALL_LOG_FILE:-/var/log/omarchy-install.log}"
 export PATH="$OMARCHY_PATH/bin:$PATH"
 
 # Install

@@ -32,15 +32,21 @@ if bootctl status 2>/dev/null | grep -q 'Secure Boot: enabled'; then
 fi
 
 # Must not have Gnome or KDE already install
-if pacman -Qe gnome-shell &>/dev/null || pacman -Qe plasma-desktop &>/dev/null; then
-  abort "Fresh + Vanilla Arch"
+if [[ -z ${OMARCHY_LAYERED_INSTALL:-} ]]; then
+  if pacman -Qe gnome-shell &>/dev/null || pacman -Qe plasma-desktop &>/dev/null; then
+    abort "Fresh + Vanilla Arch"
+  fi
 fi
 
 # Must have limine installed
-command -v limine &>/dev/null || abort "Limine bootloader"
+if [[ -z ${OMARCHY_LAYERED_INSTALL:-} ]]; then
+  command -v limine &>/dev/null || abort "Limine bootloader"
+fi
 
 # Must have btrfs root filesystem
-[ "$(findmnt -n -o FSTYPE /)" = "btrfs" ] || abort "Btrfs root filesystem" 
+if [[ -z ${OMARCHY_LAYERED_INSTALL:-} ]]; then
+  [ "$(findmnt -n -o FSTYPE /)" = "btrfs" ] || abort "Btrfs root filesystem"
+fi
 
 # Cleared all guards
 echo "Guards: OK"

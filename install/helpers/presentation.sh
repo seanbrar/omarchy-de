@@ -3,6 +3,19 @@ if ! command -v gum &>/dev/null; then
   sudo pacman -S --needed --noconfirm gum
 fi
 
+# Fallback for tte if not installed
+if ! command -v tte &>/dev/null; then
+  tte() {
+    shift # Remove the -i or other flags
+    if [ -f "$1" ]; then
+      cat "$1"
+    else
+      echo "$@"
+    fi
+  }
+  export -f tte
+fi
+
 # Get terminal size from /dev/tty (works in all scenarios: direct, sourced, or piped)
 if [ -e /dev/tty ]; then
   TERM_SIZE=$(stty size 2>/dev/null </dev/tty)

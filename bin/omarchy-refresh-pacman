@@ -1,19 +1,31 @@
 #!/bin/bash
 
-# Take backup of existing files
-sudo cp -f /etc/pacman.conf /etc/pacman.conf.bak
-sudo cp -f /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-
-sudo cp -f ~/.local/share/omarchy/default/pacman/pacman.conf /etc/pacman.conf
-
-if [[ $1 == "edge" ]]; then
-  sudo cp -f ~/.local/share/omarchy/default/pacman/mirrorlist-edge /etc/pacman.d/mirrorlist
-  sudo sed -i 's|https://pkgs.omarchy.org/.*$arch|https://pkgs.omarchy.org/edge/$arch|' /etc/pacman.conf
-  echo "Setting channel to edge"
+# Detect layered install mode via marker file (env var only exists during install)
+if [[ -f ~/.config/omarchy/.layered ]]; then
+  # Robust section-aware update of the [omarchy] repository channel
+  if [[ $1 == "edge" ]]; then
+    sudo sed -i '/^\[omarchy\]/,/^$/ s|Server = .*$arch|Server = https://pkgs.omarchy.org/edge/$arch|' /etc/pacman.conf
+    echo "Setting channel to edge (layered mode)"
+  else
+    sudo sed -i '/^\[omarchy\]/,/^$/ s|Server = .*$arch|Server = https://pkgs.omarchy.org/stable/$arch|' /etc/pacman.conf
+    echo "Setting channel to stable (layered mode)"
+  fi
 else
-  sudo cp -f ~/.local/share/omarchy/default/pacman/mirrorlist-stable /etc/pacman.d/mirrorlist
-  sudo sed -i 's|https://pkgs.omarchy.org/.*$arch|https://pkgs.omarchy.org/stable/$arch|' /etc/pacman.conf
-  echo "Setting channel to stable"
+  # Take backup of existing files
+  sudo cp -f /etc/pacman.conf /etc/pacman.conf.bak
+  sudo cp -f /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+
+  sudo cp -f ~/.local/share/omarchy/default/pacman/pacman.conf /etc/pacman.conf
+
+  if [[ $1 == "edge" ]]; then
+    sudo cp -f ~/.local/share/omarchy/default/pacman/mirrorlist-edge /etc/pacman.d/mirrorlist
+    sudo sed -i 's|https://pkgs.omarchy.org/.*$arch|https://pkgs.omarchy.org/edge/$arch|' /etc/pacman.conf
+    echo "Setting channel to edge"
+  else
+    sudo cp -f ~/.local/share/omarchy/default/pacman/mirrorlist-stable /etc/pacman.d/mirrorlist
+    sudo sed -i 's|https://pkgs.omarchy.org/.*$arch|https://pkgs.omarchy.org/stable/$arch|' /etc/pacman.conf
+    echo "Setting channel to stable"
+  fi
 fi
 
 echo
